@@ -15,16 +15,18 @@ def call_api(query,n):
             return []
         data = req.json()
         if(isinstance(data, dict) ):                          
-            re_data.extend(req.json()['items'])
+            re_data.extend(data['items'])
         elif(isinstance(data,list) ):
             re_data.extend(data)
     return re_data;
     
 def main(org_name,n,m):
 
-    access_token="access_token=dfceb56e9a63bd0aef0acb0ff8a58f03fbb7694d"        #access token use to get 5000 req per hour
+    access_token="access_token="+"copy access token here"        #access token use to get 5000 req per hour #copy your access token to this 
 
     access_token_cond=access_token+"&token_type=bearer"
+
+    access_token_cond=""                                          #add access token and comment this line for more req per houe
 
     query_for_repo = "https://api.github.com/search/repositories?q=org:"+org_name+"&sort=forks&order=desc&per_page=100&"+access_token_cond+"&page="     #string for calling api for repos;
 
