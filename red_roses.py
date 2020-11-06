@@ -1,50 +1,63 @@
 import requests                                                           #import for api response
 import json                                                               #import for json support
-def call_api_for_repo_name(query,page):
-    #api.git does not give respone in a sorted order of forks hence we have to get all the responses and sort out self
-    #this function will return all the json data till the last page
-    repo_data = []
-    req = requests.get(query+str(page));
-    if(str(req)=='<Response [200]>'):
-        repo_data = req.json()
-        if(len(repo_data)>99):
-            repo_data.extend(call_api_for_repo_name(query,page+1))
-        return repo_data
-    else:
-        print(req)
-
-org_name,n,m = list(input('input name n m\n').split())
-
-query_for_repo = "https://api.github.com/orgs/"+org_name+"/repos?type=fork&per_page=100&page="     #string for calling api for repos;
-repo_data = call_api_for_repo_name(query_for_repo,1);                                              #function call
-try:
-    repo_data = sorted(repo_data,key= lambda i:i["forks"],reverse=True)                            #sorting according to the forks
-except:
-    print("empty data")
-for i in repo_data:
-   print(i['name'])
-try:
-    for i in range(int(n)):
-        repo_name = repo_data[i]['name']
-        print(repo_name);
-        query_for_collab = "https://api.github.com/repos/"+org_name+"/"+repo_name+"/contributors"      #string for calling api for collabiraters
-        req = requests.get(query_for_collab);                                                          # api call
-        print()
-        print("collab:")
+import math
+def call_api(query,n):
+    #function retrives data using api.github can be re used for other purposes also
+    re_data = []
+    k=int(math.ceil(n/100))                    #allows us to move to next page to get enough data
+    for page in range(1,k+1):
+        req = requests.get(query+str(page));
+        #print(query+str(page))
         if(str(req) == '<Response [200]>'):
             pass
         else:
             print(req)
-        collab_data = req.json();
-        try:
-            for j in range(int(m)):
-                print(collab_data[j]['login'],collab_data[j]['contributions'])
-        except Exception as e:
-            pass
-        print()
-except Exception as e:
-    pass
+            return []
+        data = req.json()
+        if(isinstance(data, dict) ):                          
+            re_data.extend(req.json()['items'])
+        elif(isinstance(data,list) ):
+            re_data.extend(data)
+    return re_data;
     
+def main(org_name,n,m):
+
+    access_token="access_token=dfceb56e9a63bd0aef0acb0ff8a58f03fbb7694d"        #access token use to get 5000 req per hour
+
+    access_token_cond=access_token+"&token_type=bearer"
+
+    query_for_repo = "https://api.github.com/search/repositories?q=org:"+org_name+"&sort=forks&order=desc&per_page=100&"+access_token_cond+"&page="     #string for calling api for repos;
+
+    repo_data = call_api(query_for_repo,int(n));                                              #function call
+
+    try:
+        for i in range(int(n)):
+            repo_name = repo_data[i]['name']
+            forks = repo_data[i]['forks']
+            print(repo_name,forks);
+            query_for_collab = "https://api.github.com/repos/"+org_name+"/"+repo_name+"/contributors?per_page=100&"+access_token_cond     #string for calling api for collabiraters                                                         # api call
+            print()
+            print("contributors:")
+            collab_data = call_api(query_for_collab,int(m))
+            try:
+                for j in range(int(m)):
+                    print(collab_data[j]['login'],collab_data[j]['contributions'])
+            except Exception as e:
+                pass
+            print()
+    except Exception as e:
+        print()
+
+if __name__=='__main__':
+    try:
+        org_name,n,m = list(input('input name n m\n').split())
+        int(n)
+        int(m)
+        main(org_name,n,m)
+    except:
+        print("enter proper inputs")
+    
+
 #speed of the program depends upon the speed and response of the api
 #api calls  from user to collabration organizations are restricted for every 24 hours
 #for unlimited calls we have to send out clint id and clint seceret
