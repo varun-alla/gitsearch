@@ -56,8 +56,8 @@ if __name__=='__main__':
         int(n)
         int(m)
         main(org_name,n,m)
-    except:
-        print("enter proper inputs")
+    except Exception as e:
+        print("enter proper inputs and check your connection if entered properly")
     
 
 #speed of the program depends upon the speed and response of the api
