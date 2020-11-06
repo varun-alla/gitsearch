@@ -6,6 +6,7 @@ Input is a single line argument [orgn n m] where orgn-organizaiton name, n-numbe
 Eg: google 2 3
     microsoft 4 5
     oracle 3 4
+The program uses api.github to fetch the responses
 
 Errors which might occour are follows
 
