@@ -10,7 +10,7 @@ def call_api(query,n):
         #print(query+str(page))
         if(str(req) == '<Response [200]>'):
             pass
-        else:
+        else:                                               
             print(req)
             return []
         data = req.json()
@@ -26,8 +26,10 @@ def call_api(query,n):
     return re_data;
     
 def main(org_name,n,m):
+    if(int(n)<1 or int(m)<1):
+        return
 
-    access_token="access_token="+"copy access token here"        #access token use to get 5000 req per hour #copy your access token to this 
+    access_token="access_token="+"copy token here"        #access token use to get 5000 req per hour #copy your access token to this 
 
     access_token_cond=access_token+"&token_type=bearer&page="
 
